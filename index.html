@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script async src="https://www.tiktok.com/embed.js"></script>
 <style>
 :root {
   --black: #000000;
@@ -1012,12 +1011,14 @@ function openModal(f){
   document.getElementById('modal-title').textContent = f.title;
   const embedHTML = f.tiktok ? `
     <div style="display:flex;justify-content:center;margin-top:16px">
-      <blockquote class="tiktok-embed"
-        cite="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}"
-        data-video-id="${f.tiktok}"
-        style="max-width:605px;min-width:325px;width:100%">
-        <section></section>
-      </blockquote>
+      <iframe
+        src="https://www.tiktok.com/embed/v2/${f.tiktok}"
+        width="325"
+        height="580"
+        frameborder="0"
+        allow="encrypted-media;"
+        style="border:none;max-width:100%">
+      </iframe>
     </div>
   ` : `
     <div style="aspect-ratio:16/9;background:#0a0a0a;display:flex;align-items:center;justify-content:center;border:1px solid #1a1a1a">
@@ -1029,8 +1030,6 @@ function openModal(f){
     ${embedHTML}
   `;
   document.getElementById('modal').classList.add('open');
-  // re-init tiktok embed script
-  if(f.tiktok && window.tiktok) window.tiktok.embed.render();
 }
 document.getElementById('modal-close').addEventListener('click',()=>{
   document.getElementById('modal').classList.remove('open');
