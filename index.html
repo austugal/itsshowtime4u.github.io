@@ -4,933 +4,727 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fitzy Clips · It's Showtime 4 U</title>
+<meta name="description" content="Trending. Original. Movie Edits. Clips. Shorts. AI-generated cinema. @itsshowtime4u — 9.6M likes, 100K+ followers.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
+/* ── TOKENS ── */
 :root {
-  --black: #000000;
-  --white: #ffffff;
-  --silver: #c8c8c8;
-  --dim: #888888;
-  --dimmer: #444444;
-  --accent: #ffffff;
-  --film: rgba(255,255,255,0.06);
+  --black:    #000000;
+  --white:    #ffffff;
+  --silver:   #c8c8c8;
+  --dim:      #888888;
+  --dimmer:   #333333;
+  --accent:   #e8c97a;
+  --accent2:  #c8a84a;
+  --glass:    rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.08);
+  --red:      #ff3333;
+  --z-bg:0; --z-overlay:1; --z-scanline:2; --z-app:10; --z-nav:100; --z-modal:1000; --z-cursor:9999;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: #000;
-  color: var(--white);
-  font-family: 'Cormorant Garamond', serif;
-  overflow-x: hidden;
-  cursor: none;
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:#000;
+  color:var(--white);
+  font-family:'Cormorant Garamond',serif;
+  overflow-x:hidden;
+  cursor:none;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ── CUSTOM CURSOR ── */
-#cursor {
-  position: fixed; top: 0; left: 0; z-index: 999;
-  pointer-events: none;
-}
-#cursor-dot {
-  width: 6px; height: 6px; background: #fff;
-  border-radius: 50%;
-  position: absolute;
-  transform: translate(-50%,-50%);
-  transition: transform 0.1s;
-}
-#cursor-ring {
-  width: 36px; height: 36px;
-  border: 1px solid rgba(255,255,255,0.5);
-  border-radius: 50%;
-  position: absolute;
-  transform: translate(-50%,-50%);
-  transition: all 0.12s ease;
+/* ── CURSOR ── */
+#cursor{position:fixed;top:0;left:0;z-index:var(--z-cursor);pointer-events:none;}
+#cursor-dot{width:5px;height:5px;background:#fff;border-radius:50%;position:absolute;transform:translate(-50%,-50%);}
+#cursor-ring{
+  width:32px;height:32px;
+  border:1px solid rgba(255,255,255,0.4);
+  border-radius:50%;
+  position:absolute;
+  transform:translate(-50%,-50%);
+  transition:width 0.2s,height 0.2s,border-color 0.2s;
 }
 body:has(a:hover) #cursor-ring,
 body:has(button:hover) #cursor-ring,
-body:has(.card:hover) #cursor-ring {
-  width: 56px; height: 56px;
-  border-color: rgba(255,255,255,0.9);
+body:has(.card:hover) #cursor-ring{
+  width:52px;height:52px;border-color:var(--accent);
 }
 
-/* ── CANVAS BG ── */
-#bg-canvas {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 0;
+/* ── FIXED LAYERS ── */
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:var(--z-bg);}
+#grain{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:var(--z-overlay);pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 0.12s steps(1) infinite;
 }
-
-/* ── FILM GRAIN OVERLAY ── */
-#grain {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  animation: grain 0.15s steps(1) infinite;
-}
-@keyframes grain {
-  0%,100%{transform:translate(0,0)}
-  10%{transform:translate(-2%,-2%)}
-  20%{transform:translate(2%,2%)}
-  30%{transform:translate(-1%,1%)}
-  40%{transform:translate(1%,-1%)}
-  50%{transform:translate(-2%,1%)}
-  60%{transform:translate(2%,-2%)}
-  70%{transform:translate(-1%,-1%)}
-  80%{transform:translate(1%,2%)}
+@keyframes grain{
+  0%,100%{transform:translate(0,0)} 10%{transform:translate(-2%,-2%)} 20%{transform:translate(2%,2%)}
+  30%{transform:translate(-1%,1%)} 40%{transform:translate(1%,-1%)} 50%{transform:translate(-2%,1%)}
+  60%{transform:translate(2%,-2%)} 70%{transform:translate(-1%,-1%)} 80%{transform:translate(1%,2%)}
   90%{transform:translate(-2%,0)}
 }
-
-/* ── SCANLINES ── */
-#scanlines {
-  position: fixed; top: 0; left: 0;
-  width: 100%; height: 100%;
-  z-index: 2; pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.03) 2px,
-    rgba(0,0,0,0.03) 4px
-  );
+#scanlines{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:var(--z-scanline);pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.025) 2px,rgba(0,0,0,0.025) 4px);
 }
 
-/* ── LAYOUT WRAPPER ── */
-#app { position: relative; z-index: 10; }
+/* ── APP ── */
+#app{position:relative;z-index:var(--z-app);}
 
 /* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: 28px 48px;
-  display: flex; justify-content: space-between; align-items: center;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:var(--z-nav);
+  padding:24px 6vw;
+  display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.8) 0%,transparent 100%);
+  backdrop-filter:blur(0px);
+  transition:background 0.3s,backdrop-filter 0.3s;
 }
-.nav-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 4px;
-  color: #fff;
-  text-decoration: none;
+nav.scrolled{background:rgba(0,0,0,0.85);backdrop-filter:blur(20px);}
+.nav-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:5px;color:#fff;text-decoration:none;
+  display:flex;align-items:center;gap:8px;
 }
-.nav-logo span { color: var(--dim); }
-.nav-links {
-  display: flex; gap: 40px; list-style: none;
+.nav-logo-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;}
+.nav-links{display:flex;gap:36px;list-style:none;align-items:center;}
+.nav-links a{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;transition:color 0.2s;
 }
-.nav-links a {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--silver);
-  text-decoration: none;
-  transition: color 0.2s;
+.nav-links a:hover{color:#fff;}
+.nav-links .nav-cta{
+  color:#000;background:var(--accent);
+  padding:8px 20px;letter-spacing:3px;
+  transition:background 0.2s;
 }
-.nav-links a:hover { color: #fff; }
+.nav-links .nav-cta:hover{background:var(--accent2);color:#000;}
 
 /* ── HERO ── */
-#hero {
-  height: 100vh;
-  display: flex; flex-direction: column;
-  justify-content: center; align-items: flex-start;
-  padding: 0 8vw;
-  position: relative;
+#hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:flex-start;
+  padding:0 8vw;
+  position:relative;
+  overflow:hidden;
 }
 
-.hero-eyebrow {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 6px;
-  color: var(--dim);
-  text-transform: uppercase;
-  margin-bottom: 24px;
-  opacity: 0;
-  animation: fadeUp 1s 0.3s forwards;
+/* ambient vignette */
+#hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 20% 50%, rgba(232,201,122,0.04) 0%, transparent 60%);
+  pointer-events:none;
 }
 
-.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(72px, 12vw, 180px);
-  line-height: 0.9;
-  letter-spacing: 2px;
-  color: #fff;
-  opacity: 0;
-  animation: fadeUp 1s 0.5s forwards;
+.hero-eyebrow{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;letter-spacing:7px;color:var(--accent);
+  text-transform:uppercase;margin-bottom:28px;
+  display:flex;align-items:center;gap:16px;
+  opacity:0;animation:fadeUp 1s 0.2s forwards;
 }
-.hero-title .dim { color: var(--dimmer); }
+.hero-eyebrow::before{content:'';width:32px;height:1px;background:var(--accent);}
 
-.hero-sub {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: clamp(16px, 2vw, 22px);
-  color: var(--silver);
-  margin-top: 28px;
-  letter-spacing: 1px;
-  line-height: 1.6;
-  max-width: 520px;
-  opacity: 0;
-  animation: fadeUp 1s 0.7s forwards;
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(80px,13vw,200px);
+  line-height:0.88;letter-spacing:1px;color:#fff;
+  opacity:0;animation:fadeUp 1s 0.4s forwards;
 }
+.hero-title .dim{color:var(--dimmer);}
+.hero-title .gold{color:var(--accent);}
 
-.hero-stats {
-  display: flex; gap: 48px;
-  margin-top: 48px;
-  opacity: 0;
-  animation: fadeUp 1s 0.9s forwards;
-}
-.stat-item { text-align: left; }
-.stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
-  letter-spacing: 2px;
-  color: #fff;
-  display: block;
-}
-.stat-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 3px;
-  color: var(--dim);
-  text-transform: uppercase;
+.hero-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(17px,1.8vw,22px);color:var(--silver);
+  margin-top:32px;letter-spacing:0.5px;line-height:1.7;max-width:480px;
+  opacity:0;animation:fadeUp 1s 0.6s forwards;
 }
 
-.hero-cta {
-  margin-top: 52px;
-  opacity: 0;
-  animation: fadeUp 1s 1.1s forwards;
-  display: flex; gap: 20px; align-items: center;
+.hero-stats{
+  display:flex;gap:52px;margin-top:52px;
+  opacity:0;animation:fadeUp 1s 0.8s forwards;
 }
-.btn-primary {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: #000;
-  background: #fff;
-  border: none;
-  padding: 16px 40px;
-  cursor: none;
-  text-decoration: none;
-  transition: all 0.2s;
-  display: inline-block;
+.stat-item{border-left:1px solid var(--dimmer);padding-left:20px;}
+.stat-num{
+  font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:2px;
+  color:#fff;display:block;line-height:1;
 }
-.btn-primary:hover { background: var(--silver); }
-.btn-secondary {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: #fff;
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.3);
-  padding: 16px 40px;
-  cursor: none;
-  text-decoration: none;
-  transition: all 0.2s;
-  display: inline-block;
-}
-.btn-secondary:hover { border-color: #fff; }
-
-.hero-scroll {
-  position: absolute; bottom: 40px; left: 50%;
-  transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 10px;
-  opacity: 0; animation: fadeIn 1s 1.5s forwards;
-}
-.scroll-line {
-  width: 1px; height: 60px;
-  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.5));
-  animation: scrollPulse 2s ease-in-out infinite;
-}
-.scroll-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px; letter-spacing: 4px;
-  color: var(--dim); text-transform: uppercase;
-  writing-mode: vertical-rl;
-}
-@keyframes scrollPulse {
-  0%,100%{opacity:0.3} 50%{opacity:1}
+.stat-num span{color:var(--accent);font-size:28px;}
+.stat-label{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-top:4px;display:block;
 }
 
-/* ── SECTION BASE ── */
-section {
-  position: relative; z-index: 10;
-  padding: 120px 8vw;
+.hero-cta{
+  margin-top:56px;display:flex;gap:16px;align-items:center;
+  opacity:0;animation:fadeUp 1s 1.0s forwards;
 }
-.section-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 5px;
-  color: var(--dim); text-transform: uppercase;
-  margin-bottom: 16px;
-  display: flex; align-items: center; gap: 16px;
+.btn-primary{
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;color:#000;background:var(--accent);
+  border:none;padding:18px 44px;cursor:none;text-decoration:none;
+  display:inline-block;transition:background 0.2s,transform 0.2s;
+  position:relative;overflow:hidden;
 }
-.section-label::after {
-  content: ''; flex: 1; max-width: 60px;
-  height: 1px; background: var(--dimmer);
+.btn-primary::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,0.15);
+  transform:translateX(-100%);transition:transform 0.3s;
 }
-.section-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(42px, 6vw, 80px);
-  letter-spacing: 2px; color: #fff;
-  margin-bottom: 60px;
-  line-height: 1;
+.btn-primary:hover::after{transform:translateX(0);}
+.btn-primary:hover{background:var(--accent2);}
+.btn-secondary{
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;color:#fff;background:transparent;
+  border:1px solid rgba(255,255,255,0.2);padding:18px 44px;
+  cursor:none;text-decoration:none;display:inline-block;
+  transition:border-color 0.2s,background 0.2s;
 }
+.btn-secondary:hover{border-color:var(--accent);background:rgba(232,201,122,0.05);}
 
-/* ── FILMS GRID ── */
-#films { background: transparent; }
-
-.films-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2px;
+.hero-scroll{
+  position:absolute;bottom:40px;right:8vw;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  opacity:0;animation:fadeIn 1s 1.6s forwards;
 }
-
-.card {
-  position: relative;
-  aspect-ratio: 16/9;
-  overflow: hidden;
-  cursor: none;
-  background: #0a0a0a;
+.scroll-line{
+  width:1px;height:64px;
+  background:linear-gradient(to bottom,transparent,var(--accent));
+  animation:scrollPulse 2.5s ease-in-out infinite;
 }
-
-.card-inner {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  justify-content: flex-end;
-  padding: 24px;
-  background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.2) 50%, transparent 100%);
-  transition: all 0.4s;
+.scroll-label{
+  font-family:'Share Tech Mono',monospace;font-size:8px;
+  letter-spacing:4px;color:var(--dim);text-transform:uppercase;writing-mode:vertical-rl;
 }
-
-.card-placeholder {
-  position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  overflow: hidden;
-}
-
-.card-placeholder canvas {
-  width: 100%; height: 100%;
-}
-
-/* animated placeholder pattern */
-.card-bg {
-  position: absolute; inset: 0;
-  background: #080808;
-  overflow: hidden;
-}
-.card-bg::before {
-  content: '';
-  position: absolute; inset: -50%;
-  background: radial-gradient(ellipse at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.04) 0%, transparent 60%);
-  transition: opacity 0.3s;
-}
-.card:hover .card-bg::before { opacity: 1; }
-
-.card-number {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 3px;
-  color: var(--dimmer);
-  margin-bottom: 8px;
-  transition: color 0.3s;
-}
-.card-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px; letter-spacing: 2px;
-  color: #fff; margin-bottom: 4px;
-  transform: translateY(8px);
-  transition: transform 0.4s;
-}
-.card-meta {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 13px; color: var(--dim);
-  transform: translateY(12px); opacity: 0;
-  transition: all 0.4s 0.05s;
-}
-.card-tag {
-  position: absolute; top: 16px; right: 16px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px; letter-spacing: 3px;
-  text-transform: uppercase;
-  color: #000; background: #fff;
-  padding: 4px 10px;
-  transform: translateY(-4px); opacity: 0;
-  transition: all 0.3s;
-}
-.card-play {
-  position: absolute; top: 50%; left: 50%;
-  transform: translate(-50%, -50%) scale(0.8);
-  width: 52px; height: 52px;
-  border: 1px solid rgba(255,255,255,0.4);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transition: all 0.3s;
-}
-.card-play::after {
-  content: '';
-  width: 0; height: 0;
-  border-top: 9px solid transparent;
-  border-bottom: 9px solid transparent;
-  border-left: 16px solid #fff;
-  margin-left: 4px;
-}
-.card:hover .card-title { transform: translateY(0); }
-.card:hover .card-meta { transform: translateY(0); opacity: 1; }
-.card:hover .card-tag { transform: translateY(0); opacity: 1; }
-.card:hover .card-play { opacity: 1; transform: translate(-50%,-50%) scale(1); }
-.card:hover .card-number { color: var(--silver); }
-
-/* abstract animated card visuals */
-.card-visual {
-  position: absolute; inset: 0;
-  overflow: hidden;
-}
-.card-visual canvas { width: 100% !important; height: 100% !important; }
+@keyframes scrollPulse{0%,100%{opacity:0.3}50%{opacity:1}}
 
 /* ── TICKER ── */
-.ticker-wrap {
-  overflow: hidden;
-  border-top: 1px solid #1a1a1a;
-  border-bottom: 1px solid #1a1a1a;
-  padding: 14px 0;
-  background: #000;
-  position: relative; z-index: 10;
+.ticker-wrap{
+  overflow:hidden;
+  border-top:1px solid #111;border-bottom:1px solid #111;
+  padding:12px 0;background:#000;position:relative;z-index:var(--z-app);
 }
-.ticker {
-  display: flex; gap: 0;
-  white-space: nowrap;
-  animation: ticker 25s linear infinite;
+.ticker{display:flex;white-space:nowrap;animation:ticker 30s linear infinite;}
+.ticker-item{
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;color:var(--dimmer);padding:0 36px;flex-shrink:0;
 }
-.ticker-item {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px; letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--dimmer);
-  padding: 0 40px;
-  flex-shrink: 0;
+.ticker-item .dot{color:var(--accent);}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SECTION BASE ── */
+section{position:relative;z-index:var(--z-app);padding:120px 8vw;}
+.section-label{
+  font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:6px;
+  color:var(--accent);text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:14px;
 }
-.ticker-item span { color: var(--dim); }
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+.section-label::before{content:'';width:24px;height:1px;background:var(--accent);}
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,6vw,88px);letter-spacing:2px;color:#fff;
+  margin-bottom:64px;line-height:0.95;
+}
+
+/* ── FILMS ── */
+#films{background:transparent;}
+.films-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:3px;
+}
+
+/* ── CARD ── */
+.card{
+  position:relative;aspect-ratio:16/9;overflow:hidden;
+  cursor:none;background:#080808;
+  transition:transform 0.4s;
+}
+.card:hover{transform:scale(1.01);z-index:2;}
+
+.card-bg{position:absolute;inset:0;background:#070707;overflow:hidden;}
+.card-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(232,201,122,0.03) 0%,transparent 50%);
+  opacity:0;transition:opacity 0.4s;
+}
+.card:hover .card-bg::after{opacity:1;}
+
+.card-visual{position:absolute;inset:0;width:100%!important;height:100%!important;}
+
+.card-inner{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:20px 22px;
+  background:linear-gradient(to top,rgba(0,0,0,0.95) 0%,rgba(0,0,0,0.3) 50%,transparent 100%);
+  transition:background 0.4s;
+}
+
+.card-number{
+  font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--dimmer);margin-bottom:6px;transition:color 0.3s;
+}
+.card-title{
+  font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;
+  color:#fff;margin-bottom:2px;
+  transform:translateY(6px);transition:transform 0.4s;
+}
+.card-meta{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:12px;color:var(--dim);
+  transform:translateY(10px);opacity:0;transition:all 0.4s 0.05s;
+}
+.card-tag{
+  position:absolute;top:14px;right:14px;
+  font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;
+  text-transform:uppercase;color:#000;background:var(--accent);
+  padding:4px 10px;
+  transform:translateY(-4px);opacity:0;transition:all 0.3s;
+}
+.card-play{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0.7);
+  width:48px;height:48px;
+  border:1px solid rgba(232,201,122,0.5);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:all 0.3s;
+  background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);
+}
+.card-play::after{
+  content:'';width:0;height:0;
+  border-top:8px solid transparent;border-bottom:8px solid transparent;
+  border-left:14px solid var(--accent);margin-left:3px;
+}
+
+.card:hover .card-title{transform:translateY(0);}
+.card:hover .card-meta{transform:translateY(0);opacity:1;}
+.card:hover .card-tag{transform:translateY(0);opacity:1;}
+.card:hover .card-play{opacity:1;transform:translate(-50%,-50%) scale(1);}
+.card:hover .card-number{color:var(--dim);}
+
+/* ── GLASS DIVIDER ── */
+.divider{
+  width:100%;height:1px;
+  background:linear-gradient(to right,transparent,#1a1a1a,transparent);
+  position:relative;z-index:var(--z-app);
 }
 
 /* ── ABOUT ── */
-#about {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px; align-items: center;
+#about{
+  display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center;
 }
-.about-text p {
-  font-size: clamp(15px, 1.4vw, 18px);
-  line-height: 1.9;
-  color: var(--silver);
-  margin-bottom: 20px;
+.about-text .section-title{margin-bottom:32px;}
+.about-text p{
+  font-size:clamp(15px,1.3vw,18px);line-height:1.9;
+  color:var(--silver);margin-bottom:18px;
 }
-.about-text p strong { color: #fff; font-weight: 400; }
-.about-links {
-  display: flex; gap: 16px; margin-top: 36px;
+.about-text p strong{color:#fff;font-weight:400;}
+.about-links{display:flex;gap:14px;margin-top:40px;}
+.about-visual{position:relative;height:460px;}
+.about-visual canvas{width:100%!important;height:100%!important;}
+
+/* ── STATS BAR ── */
+#stats-bar{
+  padding:60px 8vw;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:#111;position:relative;z-index:var(--z-app);
 }
-.about-visual {
-  position: relative;
-  height: 500px;
-  display: flex; align-items: center; justify-content: center;
+.stats-bar-item{
+  background:#000;padding:40px 32px;text-align:center;
+  position:relative;overflow:hidden;
+  transition:background 0.3s;
 }
-.about-visual canvas {
-  width: 100% !important; height: 100% !important;
+.stats-bar-item::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(to right,transparent,var(--accent),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.stats-bar-item:hover{background:#080808;}
+.stats-bar-item:hover::before{opacity:1;}
+.stats-bar-num{
+  font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:2px;
+  color:#fff;display:block;line-height:1;
+}
+.stats-bar-label{
+  font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--dim);text-transform:uppercase;margin-top:8px;display:block;
 }
 
-/* ── TIKTOK EMBED ── */
-#tiktok-section {
-  text-align: center;
-  padding: 80px 8vw;
+/* ── TIKTOK CTA ── */
+#tiktok-section{
+  text-align:center;padding:100px 8vw;position:relative;overflow:hidden;
 }
-.tiktok-handle {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(48px, 8vw, 120px);
-  letter-spacing: 4px;
-  background: linear-gradient(to right, #fff 0%, #666 50%, #fff 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
-  text-decoration: none;
-  display: inline-block;
-  transition: opacity 0.3s;
+#tiktok-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 50%,rgba(232,201,122,0.03) 0%,transparent 70%);
 }
-.tiktok-handle:hover { opacity: 0.8; }
-@keyframes shimmer {
-  from { background-position: 0 center; }
-  to { background-position: 200% center; }
+.tiktok-handle{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(52px,9vw,140px);letter-spacing:3px;
+  background:linear-gradient(to right,#fff 0%,var(--accent) 40%,#666 60%,#fff 100%);
+  background-size:250% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 5s linear infinite;
+  text-decoration:none;display:inline-block;transition:opacity 0.3s;
 }
-.tiktok-sub {
-  font-family: 'Cormorant Garamond', serif;
-  font-style: italic;
-  font-size: 18px; color: var(--dim);
-  margin-top: 16px; letter-spacing: 1px;
+.tiktok-handle:hover{opacity:0.8;}
+@keyframes shimmer{from{background-position:0 center}to{background-position:250% center}}
+.tiktok-sub{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:18px;color:var(--dim);letter-spacing:1px;
 }
 
 /* ── FOOTER ── */
-footer {
-  position: relative; z-index: 10;
-  padding: 48px 8vw;
-  border-top: 1px solid #111;
-  display: flex; justify-content: space-between; align-items: center;
+footer{
+  position:relative;z-index:var(--z-app);
+  padding:48px 8vw;border-top:1px solid #0d0d0d;
+  display:flex;justify-content:space-between;align-items:center;
+  background:#000;
 }
-.footer-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 20px; letter-spacing: 4px; color: var(--dimmer);
+.footer-logo{
+  font-family:'Bebas Neue',sans-serif;font-size:18px;
+  letter-spacing:5px;color:var(--dimmer);
+  display:flex;align-items:center;gap:8px;
 }
-.footer-copy {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px; letter-spacing: 2px;
-  color: var(--dimmer);
+.footer-logo-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;}
+.footer-links{display:flex;gap:28px;}
+.footer-links a{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:3px;color:var(--dimmer);text-decoration:none;
+  text-transform:uppercase;transition:color 0.2s;
+}
+.footer-links a:hover{color:var(--accent);}
+.footer-copy{
+  font-family:'Share Tech Mono',monospace;font-size:9px;
+  letter-spacing:2px;color:var(--dimmer);
 }
 
 /* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fadeIn {
-  from { opacity: 0; } to { opacity: 1; }
-}
-
-.reveal {
-  opacity: 0; transform: translateY(40px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
-}
-.reveal.visible {
-  opacity: 1; transform: translateY(0);
-}
-
-/* ── DIVIDER LINE ── */
-.divider {
-  width: 100%; height: 1px;
-  background: linear-gradient(to right, transparent, #222, transparent);
-  position: relative; z-index: 10;
-}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.reveal{opacity:0;transform:translateY(36px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
 
 /* ── MODAL ── */
-#modal {
-  position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0,0,0,0.95);
-  display: none; align-items: center; justify-content: center;
-  backdrop-filter: blur(8px);
-  cursor: auto;
+#modal{
+  position:fixed;inset:0;z-index:var(--z-modal);
+  background:rgba(0,0,0,0.96);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(12px);cursor:auto;
 }
-#modal.open { display: flex; }
-.modal-inner {
-  position: relative; width: 90vw; max-width: 900px;
-  cursor: auto;
+#modal.open{display:flex;}
+.modal-inner{position:relative;width:90vw;max-width:880px;cursor:auto;}
+.modal-close{
+  position:absolute;top:-52px;right:0;
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;
+  color:var(--dim);background:none;border:none;cursor:pointer;
+  text-transform:uppercase;transition:color 0.2s;display:flex;align-items:center;gap:8px;
 }
-.modal-close {
-  position: absolute; top: -48px; right: 0;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 11px; letter-spacing: 3px;
-  color: var(--dim); background: none; border: none;
-  cursor: pointer; text-transform: uppercase;
-  transition: color 0.2s;
+.modal-close::before{content:'';width:20px;height:1px;background:currentColor;}
+.modal-close:hover{color:var(--accent);}
+.modal-title{
+  font-family:'Bebas Neue',sans-serif;font-size:30px;
+  letter-spacing:2px;margin-bottom:20px;color:#fff;
 }
-.modal-close:hover { color: #fff; }
-.modal-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px; letter-spacing: 2px;
-  margin-bottom: 20px; color: #fff;
-}
-#modal a { cursor: pointer; position: relative; z-index: 1010; }
 
-/* mobile */
-@media (max-width: 768px) {
-  nav { padding: 20px 24px; }
-  .nav-links { display: none; }
-  section { padding: 80px 6vw; }
-  #hero { padding: 0 6vw; }
-  #about { grid-template-columns: 1fr; }
-  .about-visual { display: none; }
-  footer { flex-direction: column; gap: 12px; text-align: center; }
+/* ── MOBILE ── */
+@media(max-width:768px){
+  nav{padding:18px 5vw;}
+  .nav-links{display:none;}
+  section{padding:80px 5vw;}
+  #hero{padding:0 5vw;}
+  .films-grid{grid-template-columns:1fr;}
+  #about{grid-template-columns:1fr;gap:40px;}
+  .about-visual{display:none;}
+  footer{flex-direction:column;gap:20px;text-align:center;}
+  .footer-links{flex-wrap:wrap;justify-content:center;}
+  #stats-bar{grid-template-columns:repeat(2,1fr);}
+  .hero-stats{gap:24px;}
+}
+@media(max-width:480px){
+  .films-grid{grid-template-columns:1fr;}
+  #stats-bar{grid-template-columns:1fr 1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- cursor -->
-<div id="cursor">
-  <div id="cursor-dot"></div>
-  <div id="cursor-ring"></div>
-</div>
-
-<!-- 3D canvas background -->
+<div id="cursor"><div id="cursor-dot"></div><div id="cursor-ring"></div></div>
 <canvas id="bg-canvas"></canvas>
-
-<!-- overlays -->
 <div id="grain"></div>
 <div id="scanlines"></div>
 
 <div id="app">
 
-  <!-- NAV -->
-  <nav>
-    <a href="#" class="nav-logo">FITZY<span>CLIPS</span></a>
-    <ul class="nav-links">
-      <li><a href="#films">Films</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="https://www.tiktok.com/@itsshowtime4u" target="_blank">TikTok</a></li>
-    </ul>
-  </nav>
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo"><div class="nav-logo-dot"></div>FITZY<span style="color:var(--dim)">CLIPS</span></a>
+  <ul class="nav-links">
+    <li><a href="#films">Films</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="https://www.youtube.com/@itsshowtime4u" target="_blank">YouTube</a></li>
+    <li><a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="nav-cta">TikTok</a></li>
+  </ul>
+</nav>
 
-  <!-- HERO -->
-  <section id="hero">
-    <p class="hero-eyebrow">𝔽𝕚𝕥𝕫𝕪 ℂ𝕝𝕚𝕡𝕤 · @itsshowtime4u</p>
-    <h1 class="hero-title">
-      IT'S<br>
-      <span class="dim">SHOW</span><br>
-      TIME
-    </h1>
-    <p class="hero-sub">
-      Trending. Original. Movie Edits. Clips. Shorts.<br>
-      AI-generated cinema for the next generation.
-    </p>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <span class="stat-num">9.6M</span>
-        <span class="stat-label">Likes</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">100K+</span>
-        <span class="stat-label">Followers</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">AI</span>
-        <span class="stat-label">Generated</span>
-      </div>
+<!-- HERO -->
+<section id="hero">
+  <p class="hero-eyebrow">Fitzy Clips · @itsshowtime4u</p>
+  <h1 class="hero-title">
+    IT'S<br>
+    <span class="dim">SHOW</span><br>
+    <span class="gold">TIME</span>
+  </h1>
+  <p class="hero-sub">
+    Trending. Original. Movie Edits. Clips. Shorts.<br>
+    AI-generated cinema for the next generation.
+  </p>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <span class="stat-num">9.6<span>M</span></span>
+      <span class="stat-label">Total Likes</span>
     </div>
-    <div class="hero-cta">
-      <a href="#films" class="btn-primary">Watch Now</a>
-      <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-secondary">Follow on TikTok</a>
+    <div class="stat-item">
+      <span class="stat-num">100<span>K+</span></span>
+      <span class="stat-label">Followers</span>
     </div>
-    <div class="hero-scroll">
-      <div class="scroll-line"></div>
-      <span class="scroll-label">Scroll</span>
+    <div class="stat-item">
+      <span class="stat-num">AI</span>
+      <span class="stat-label">Generated</span>
     </div>
-  </section>
-
-  <!-- TICKER -->
-  <div class="ticker-wrap">
-    <div class="ticker" id="ticker"></div>
   </div>
+  <div class="hero-cta">
+    <a href="#films" class="btn-primary">Watch Now</a>
+    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-secondary">Follow on TikTok</a>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
 
-  <!-- FILMS -->
-  <section id="films">
-    <p class="section-label reveal">Selected Works</p>
-    <h2 class="section-title reveal">AI FILMS &amp;<br>EDITS</h2>
-    <div class="films-grid" id="films-grid"></div>
-  </section>
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker"></div>
+</div>
 
-  <div class="divider"></div>
+<!-- FILMS -->
+<section id="films">
+  <p class="section-label reveal">Selected Works</p>
+  <h2 class="section-title reveal">AI FILMS &amp;<br>EDITS</h2>
+  <div class="films-grid" id="films-grid"></div>
+</section>
 
-  <!-- ABOUT -->
-  <section id="about">
-    <div class="about-text reveal">
-      <p class="section-label">About</p>
-      <h2 class="section-title">FITZY<br>CLIPS</h2>
-      <p>
-        <strong>Trending. Original. Cinematic.</strong> Fitzy Clips is a creative channel
-        pushing the boundaries of what's possible with AI video generation and cinematic editing.
-      </p>
-      <p>
-        From short film edits to full AI-generated movie sequences, every frame is
-        crafted with intention. <strong>9.6 million likes</strong> and counting —
-        independent cinema for the streaming age.
-      </p>
+<div class="divider"></div>
 
-      <div class="about-links">
-        <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-primary">TikTok</a>
-        <a href="https://www.youtube.com/@itsshowtime4u" target="_blank" class="btn-secondary">YouTube</a>
-      </div>
+<!-- STATS BAR -->
+<div id="stats-bar">
+  <div class="stats-bar-item reveal">
+    <span class="stats-bar-num">9.6M</span>
+    <span class="stats-bar-label">TikTok Likes</span>
+  </div>
+  <div class="stats-bar-item reveal">
+    <span class="stats-bar-num">100K+</span>
+    <span class="stats-bar-label">Followers</span>
+  </div>
+  <div class="stats-bar-item reveal">
+    <span class="stats-bar-num">AI</span>
+    <span class="stats-bar-label">Native Content</span>
+  </div>
+  <div class="stats-bar-item reveal">
+    <span class="stats-bar-num">2024</span>
+    <span class="stats-bar-label">Est.</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-text reveal">
+    <p class="section-label">About</p>
+    <h2 class="section-title">FITZY<br>CLIPS</h2>
+    <p><strong>Trending. Original. Cinematic.</strong> Fitzy Clips is a creative channel pushing the boundaries of what's possible with AI video generation and cinematic editing.</p>
+    <p>From short film edits to full AI-generated movie sequences, every frame is crafted with intention. <strong>9.6 million likes</strong> and counting — independent cinema for the streaming age.</p>
+    <div class="about-links">
+      <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-primary">TikTok</a>
+      <a href="https://www.youtube.com/@itsshowtime4u" target="_blank" class="btn-secondary">YouTube</a>
     </div>
-    <div class="about-visual reveal">
-      <canvas id="about-canvas"></canvas>
-    </div>
-  </section>
+  </div>
+  <div class="about-visual reveal">
+    <canvas id="about-canvas"></canvas>
+  </div>
+</section>
 
-  <!-- TIKTOK CTA -->
-  <section id="tiktok-section" class="reveal">
-    <div class="divider" style="margin-bottom:80px"></div>
-    <p class="tiktok-sub">Find us on TikTok</p>
-    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="tiktok-handle">
-      @itsshowtime4u
-    </a>
-    <p class="tiktok-sub" style="margin-top:16px">100.4K Followers · 9.6M Likes</p>
-  </section>
+<div class="divider"></div>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-logo">FITZY CLIPS</div>
-    <div class="footer-copy">© 2024 · @itsshowtime4u · All original content</div>
-  </footer>
+<!-- TIKTOK CTA -->
+<section id="tiktok-section" class="reveal">
+  <p class="tiktok-sub">Find us on TikTok</p>
+  <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="tiktok-handle">@itsshowtime4u</a>
+  <p class="tiktok-sub" style="margin-top:16px">100.4K Followers · 9.6M Likes</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><div class="footer-logo-dot"></div>FITZY CLIPS</div>
+  <div class="footer-links">
+    <a href="#films">Films</a>
+    <a href="#about">About</a>
+    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank">TikTok</a>
+    <a href="https://www.youtube.com/@itsshowtime4u" target="_blank">YouTube</a>
+  </div>
+  <div class="footer-copy">© 2025 · @itsshowtime4u</div>
+</footer>
 
 </div><!-- /app -->
 
 <!-- MODAL -->
 <div id="modal">
   <div class="modal-inner">
-    <button class="modal-close" id="modal-close">✕ Close</button>
+    <button class="modal-close" id="modal-close">Close</button>
     <div class="modal-title" id="modal-title"></div>
     <div id="modal-body"></div>
   </div>
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   CURSOR
-═══════════════════════════════════════ */
-const dot = document.getElementById('cursor-dot');
-const ring = document.getElementById('cursor-ring');
+/* ── CURSOR ── */
+const dot=document.getElementById('cursor-dot');
+const ring=document.getElementById('cursor-ring');
 let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove', e=>{
-  mx=e.clientX; my=e.clientY;
-  dot.style.left = mx+'px'; dot.style.top = my+'px';
-});
-function animCursor(){
-  rx += (mx-rx)*0.12; ry += (my-ry)*0.12;
-  ring.style.left = rx+'px'; ring.style.top = ry+'px';
-  requestAnimationFrame(animCursor);
-}
-animCursor();
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx+'px';dot.style.top=my+'px';});
+(function animCursor(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animCursor);})();
 
-/* ═══════════════════════════════════════
-   THREE.JS BACKGROUND
-   Floating film-frame particles in 3D space
-   Mouse reactive — rotates depth field
-═══════════════════════════════════════ */
-(function initBG(){
-  const canvas = document.getElementById('bg-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>60);
+});
+
+/* ── THREE.JS BG ── */
+(function(){
+  const canvas=document.getElementById('bg-canvas');
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000, 1);
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  renderer.setClearColor(0x000000,1);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(60,window.innerWidth/window.innerHeight,0.1,200);
+  camera.position.z=50;
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
-  camera.position.z = 50;
-
-  /* ── particles ── */
-  const count = 1800;
-  const positions = new Float32Array(count * 3);
-  const sizes = new Float32Array(count);
-  const alphas = new Float32Array(count);
-
+  const count=2000;
+  const pos=new Float32Array(count*3);
   for(let i=0;i<count;i++){
-    positions[i*3]   = (Math.random()-0.5)*160;
-    positions[i*3+1] = (Math.random()-0.5)*100;
-    positions[i*3+2] = (Math.random()-0.5)*120;
-    sizes[i] = Math.random()*1.8+0.3;
-    alphas[i] = Math.random()*0.6+0.1;
+    pos[i*3]=(Math.random()-0.5)*180;
+    pos[i*3+1]=(Math.random()-0.5)*110;
+    pos[i*3+2]=(Math.random()-0.5)*130;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const mat=new THREE.PointsMaterial({color:0xffffff,size:0.28,transparent:true,opacity:0.35,sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false});
+  scene.add(new THREE.Points(geo,mat));
+
+  const lineGroup=new THREE.Group();scene.add(lineGroup);
+  for(let i=0;i<55;i++){
+    const w=4+Math.random()*10,h=w*0.5625;
+    const x=(Math.random()-0.5)*150,y=(Math.random()-0.5)*95,z=(Math.random()-0.5)*110;
+    const pts=[new THREE.Vector3(-w/2,-h/2,0),new THREE.Vector3(w/2,-h/2,0),new THREE.Vector3(w/2,h/2,0),new THREE.Vector3(-w/2,h/2,0),new THREE.Vector3(-w/2,-h/2,0)];
+    const g=new THREE.BufferGeometry().setFromPoints(pts);
+    const m=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.04});
+    const line=new THREE.Line(g,m);
+    line.position.set(x,y,z);line.rotation.z=Math.random()*Math.PI*2;
+    line.userData={vx:(Math.random()-0.5)*0.007,vy:(Math.random()-0.5)*0.005,vz:(Math.random()-0.5)*0.004,rx:(Math.random()-0.5)*0.002,ry:(Math.random()-0.5)*0.002};
+    lineGroup.add(line);
   }
 
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
-  geo.setAttribute('size', new THREE.BufferAttribute(sizes,1));
+  let tRX=0,tRY=0,cRX=0,cRY=0;
+  document.addEventListener('mousemove',e=>{tRX=(e.clientY/window.innerHeight-0.5)*0.28;tRY=(e.clientX/window.innerWidth-0.5)*0.38;});
+  window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
 
-  const mat = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 0.3,
-    transparent: true,
-    opacity: 0.4,
-    sizeAttenuation: true,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-  });
-
-  const particles = new THREE.Points(geo, mat);
-  scene.add(particles);
-
-  /* ── film frame lines ── */
-  const lineGroup = new THREE.Group();
-  scene.add(lineGroup);
-
-  function makeFilmFrame(x,y,z,w,h){
-    const pts = [
-      new THREE.Vector3(-w/2,-h/2,0),
-      new THREE.Vector3(w/2,-h/2,0),
-      new THREE.Vector3(w/2,h/2,0),
-      new THREE.Vector3(-w/2,h/2,0),
-      new THREE.Vector3(-w/2,-h/2,0),
-    ];
-    const g = new THREE.BufferGeometry().setFromPoints(pts);
-    const m = new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.06 });
-    const line = new THREE.Line(g, m);
-    line.position.set(x,y,z);
-    line.rotation.z = Math.random()*Math.PI*2;
-    line.userData = {
-      vx:(Math.random()-0.5)*0.008,
-      vy:(Math.random()-0.5)*0.005,
-      vz:(Math.random()-0.5)*0.004,
-      rx:(Math.random()-0.5)*0.003,
-      ry:(Math.random()-0.5)*0.003,
-    };
-    return line;
-  }
-
-  for(let i=0;i<60;i++){
-    const w = 4+Math.random()*10;
-    const h = w*0.5625;
-    const x = (Math.random()-0.5)*140;
-    const y = (Math.random()-0.5)*90;
-    const z = (Math.random()-0.5)*100;
-    lineGroup.add(makeFilmFrame(x,y,z,w,h));
-  }
-
-  /* ── mouse reactive ── */
-  let targetRX=0, targetRY=0, currentRX=0, currentRY=0;
-  document.addEventListener('mousemove', e=>{
-    targetRX = (e.clientY/window.innerHeight - 0.5) * 0.3;
-    targetRY = (e.clientX/window.innerWidth - 0.5) * 0.4;
-  });
-
-  /* ── resize ── */
-  window.addEventListener('resize',()=>{
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-
-  /* ── animate ── */
   let t=0;
-  function animate(){
-    t += 0.004;
-    requestAnimationFrame(animate);
-
-    // eased mouse rotation
-    currentRX += (targetRX - currentRX)*0.03;
-    currentRY += (targetRY - currentRY)*0.03;
-
-    particles.rotation.y = currentRY + t*0.05;
-    particles.rotation.x = currentRX + Math.sin(t*0.3)*0.04;
-
-    // drift film frames
-    lineGroup.children.forEach(line=>{
-      line.position.x += line.userData.vx;
-      line.position.y += line.userData.vy;
-      line.position.z += line.userData.vz;
-      line.rotation.z += line.userData.rx;
-      line.rotation.x += line.userData.ry;
-      // wrap
-      if(line.position.x > 80) line.position.x = -80;
-      if(line.position.x < -80) line.position.x = 80;
-      if(line.position.y > 55) line.position.y = -55;
-      if(line.position.y < -55) line.position.y = 55;
+  (function animate(){
+    t+=0.004;requestAnimationFrame(animate);
+    cRX+=(tRX-cRX)*0.025;cRY+=(tRY-cRY)*0.025;
+    scene.children[0].rotation.y=cRY+t*0.04;scene.children[0].rotation.x=cRX+Math.sin(t*0.25)*0.03;
+    lineGroup.children.forEach(l=>{
+      l.position.x+=l.userData.vx;l.position.y+=l.userData.vy;l.position.z+=l.userData.vz;
+      l.rotation.z+=l.userData.rx;l.rotation.x+=l.userData.ry;
+      if(l.position.x>85)l.position.x=-85;if(l.position.x<-85)l.position.x=85;
+      if(l.position.y>58)l.position.y=-58;if(l.position.y<-58)l.position.y=58;
     });
-    lineGroup.rotation.y = currentRY*0.5 + t*0.02;
-
-    renderer.render(scene, camera);
-  }
-  animate();
+    lineGroup.rotation.y=cRY*0.4+t*0.015;
+    renderer.render(scene,camera);
+  })();
 })();
 
-/* ═══════════════════════════════════════
-   ABOUT CANVAS — abstract B&W animation
-═══════════════════════════════════════ */
-(function initAbout(){
-  const c = document.getElementById('about-canvas');
-  const x = c.getContext('2d');
-  function resize(){
-    const p = c.parentElement;
-    c.width = p.offsetWidth; c.height = p.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
+/* ── ABOUT CANVAS ── */
+(function(){
+  const c=document.getElementById('about-canvas');
+  if(!c)return;
+  const ctx=c.getContext('2d');
+  function resize(){const p=c.parentElement;c.width=p.offsetWidth;c.height=p.offsetHeight;}
+  resize();window.addEventListener('resize',resize);
   let t=0;
-  function draw(){
-    t+=0.008;
-    x.clearRect(0,0,c.width,c.height);
-    const cx=c.width/2, cy=c.height/2;
-
-    // concentric rings
-    for(let r=0;r<8;r++){
-      const radius = 40 + r*36 + Math.sin(t+r*0.5)*12;
-      const alpha = 0.08 - r*0.008;
-      x.beginPath();
-      x.arc(cx,cy,radius,0,Math.PI*2);
-      x.strokeStyle=`rgba(255,255,255,${alpha})`;
-      x.lineWidth=1; x.stroke();
+  (function draw(){
+    t+=0.007;ctx.clearRect(0,0,c.width,c.height);
+    const cx=c.width/2,cy=c.height/2;
+    for(let r=0;r<9;r++){
+      const radius=36+r*40+Math.sin(t+r*0.6)*14;
+      const a=0.06-r*0.005;
+      ctx.beginPath();ctx.arc(cx,cy,radius,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,255,255,${a})`;ctx.lineWidth=1;ctx.stroke();
     }
+    // gold accent ring
+    const gr=80+Math.sin(t*0.8)*20;
+    ctx.beginPath();ctx.arc(cx,cy,gr,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(232,201,122,${0.06+Math.sin(t)*0.03})`;ctx.lineWidth=1;ctx.stroke();
 
-    // rotating lines
-    for(let l=0;l<12;l++){
-      const angle = (l/12)*Math.PI*2 + t*0.2;
-      const len = 80+Math.sin(t*0.7+l)*30;
-      x.beginPath();
-      x.moveTo(cx,cy);
-      x.lineTo(cx+Math.cos(angle)*len, cy+Math.sin(angle)*len);
-      x.strokeStyle=`rgba(255,255,255,0.06)`;
-      x.lineWidth=1; x.stroke();
+    for(let l=0;l<16;l++){
+      const angle=(l/16)*Math.PI*2+t*0.15;
+      const len=70+Math.sin(t*0.6+l)*28;
+      ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(angle)*len,cy+Math.sin(angle)*len);
+      ctx.strokeStyle=`rgba(255,255,255,0.04)`;ctx.lineWidth=1;ctx.stroke();
     }
+    const pr=7+Math.sin(t*2.2)*3;
+    ctx.beginPath();ctx.arc(cx,cy,pr,0,Math.PI*2);
+    ctx.fillStyle=`rgba(232,201,122,${0.5+Math.sin(t*2.2)*0.2})`;ctx.fill();
 
-    // center pulse
-    const pr = 8 + Math.sin(t*2)*4;
-    x.beginPath(); x.arc(cx,cy,pr,0,Math.PI*2);
-    x.fillStyle=`rgba(255,255,255,${0.15+Math.sin(t*2)*0.1})`; x.fill();
-
-    // film strip lines
-    x.strokeStyle='rgba(255,255,255,0.04)'; x.lineWidth=1;
-    for(let i=0;i<c.width;i+=c.width/8){
-      x.beginPath(); x.moveTo(i,0); x.lineTo(i,c.height); x.stroke();
-    }
-
+    ctx.strokeStyle='rgba(255,255,255,0.025)';ctx.lineWidth=1;
+    for(let i=0;i<c.width;i+=c.width/10){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,c.height);ctx.stroke();}
     requestAnimationFrame(draw);
-  }
-  draw();
+  })();
 })();
 
-/* ═══════════════════════════════════════
-   TICKER
-═══════════════════════════════════════ */
-const tickerItems = [
-  'Fitzy Clips','AI Movies','Original Edits','Trending','It\'s Showtime 4 U',
-  '@itsshowtime4u','100K Followers','9.6M Likes','Support Indie Film',
-  'Cinematic Edits','AI Generated','Short Films',
-];
-const ticker = document.getElementById('ticker');
-const all = [...tickerItems,...tickerItems,...tickerItems,...tickerItems];
-all.forEach(txt=>{
-  const el = document.createElement('span');
-  el.className='ticker-item';
-  el.innerHTML = `<span>·</span> ${txt} `;
-  ticker.appendChild(el);
+/* ── TICKER ── */
+const tickerItems=['Fitzy Clips','AI Movies','Original Edits','Trending','@itsshowtime4u','100K Followers','9.6M Likes','Cinematic Edits','AI Generated','Short Films','Horror Edits','Sci-Fi'];
+const ticker=document.getElementById('ticker');
+[...tickerItems,...tickerItems,...tickerItems,...tickerItems].forEach(txt=>{
+  const el=document.createElement('span');el.className='ticker-item';
+  el.innerHTML=`<span class="dot">·</span> ${txt} `;ticker.appendChild(el);
 });
 
-/* ═══════════════════════════════════════
-   FILMS DATA + GRID
-═══════════════════════════════════════ */
-const films = [
-  { n:'01', title:'THE CREEP TAPES 🪓', meta:'#movie #creep #edit #thesoundofyourfear', tag:'EDIT', desc:'the creep tapes 🪓', tiktok:'7505730746271730962' },
-  { n:'02', title:"WHO'S THE DUMMY? 💀", meta:'#movie #horror #classic #deadsilence #dummy #edit', tag:'EDIT', desc:"who's the dummy? 💀", tiktok:'7450449923352448263' },
-  { n:'03', title:"DRACULA'S LOVE STORY", meta:"#goodmovie #draculaalovetale #horrorromance #edit", tag:'EDIT', desc:"Dracula's love story", tiktok:'7547393604906405138' },
-  { n:'04', title:'REAL TREASURE', meta:'#youtube', tag:'FILM', youtube:'iis1KrWE85s' },
-  { n:'05', title:'DEEP CURRENT', meta:'AI Short · 2024', tag:'AI FILM', desc:'Underwater dreamscape, no dialogue needed.' },
-  { n:'06', title:'ZERO HOUR', meta:'Edit · 2024', tag:'EDIT', desc:'Countdown to something unnamed.' },
-  { n:'07', title:'FRACTURE', meta:'AI Short · 2024', tag:'AI FILM', desc:'Reality splitting at its seams.' },
-  { n:'08', title:'THE OPERATOR', meta:'Clip · 2024', tag:'CLIP', desc:'One character. One room. Everything.' },
-  { n:'09', title:'FLUX STATE', meta:'AI Short · 2024', tag:'AI FILM', desc:'Between sleep and waking, anything exists.' },
+/* ── FILMS DATA ── */
+const films=[
+  {n:'01',title:'THE CREEP TAPES 🪓',meta:'#movie #creep #edit #thesoundofyourfear',tag:'EDIT',tiktok:'7505730746271730962'},
+  {n:'02',title:"WHO'S THE DUMMY? 💀",meta:'#movie #horror #classic #deadsilence #edit',tag:'EDIT',tiktok:'7450449923352448263'},
+  {n:'03',title:"DRACULA'S LOVE STORY",meta:'#goodmovie #draculaalovetale #horrorromance',tag:'EDIT',tiktok:'7547393604906405138'},
+  {n:'04',title:'REAL TREASURE',meta:'#youtube',tag:'FILM',youtube:'iis1KrWE85s'},
+  {n:'05',title:'DEEP CURRENT',meta:'AI Short · 2024',tag:'AI FILM',desc:'Underwater dreamscape, no dialogue needed.'},
+  {n:'06',title:'ZERO HOUR',meta:'Edit · 2024',tag:'EDIT',desc:'Countdown to something unnamed.'},
+  {n:'07',title:'FRACTURE',meta:'AI Short · 2024',tag:'AI FILM',desc:'Reality splitting at its seams.'},
+  {n:'08',title:'THE OPERATOR',meta:'Clip · 2024',tag:'CLIP',desc:'One character. One room. Everything.'},
+  {n:'09',title:'FLUX STATE',meta:'AI Short · 2024',tag:'AI FILM',desc:'Between sleep and waking, anything exists.'},
 ];
 
-const grid = document.getElementById('films-grid');
-
+const grid=document.getElementById('films-grid');
 films.forEach((f,i)=>{
-  const card = document.createElement('div');
-  card.className = 'card reveal';
-  card.style.transitionDelay = (i%3)*0.1+'s';
-  card.innerHTML = `
+  const card=document.createElement('div');card.className='card reveal';
+  card.style.transitionDelay=(i%3)*0.08+'s';
+  card.innerHTML=`
     <div class="card-bg"></div>
     <canvas class="card-visual" id="cv${i}"></canvas>
     <div class="card-inner">
@@ -939,144 +733,58 @@ films.forEach((f,i)=>{
       <div class="card-meta">${f.meta}</div>
     </div>
     <div class="card-tag">${f.tag}</div>
-    <div class="card-play"></div>
-  `;
+    <div class="card-play"></div>`;
   card.addEventListener('click',()=>openModal(f));
-  // card mouse glow
-  card.addEventListener('mousemove',e=>{
-    const r = card.getBoundingClientRect();
-    card.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
-    card.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
-  });
   grid.appendChild(card);
-  initCardCanvas(i, f);
+  initCardCanvas(i);
 });
 
-function initCardCanvas(i, f){
+function initCardCanvas(i){
   requestAnimationFrame(()=>{
-    const c = document.getElementById('cv'+i);
-    if(!c) return;
-    const x = c.getContext('2d');
-    const p = c.parentElement;
-    c.width = p.offsetWidth||320;
-    c.height = p.offsetHeight||180;
-    const W=c.width, H=c.height;
-    const seed = i*137.5;
-    let t=0;
-    // different abstract pattern per card
-    const style = i%3;
-    function drawCard(){
-      t+=0.012;
-      x.clearRect(0,0,W,H);
-      x.fillStyle='#060606'; x.fillRect(0,0,W,H);
+    const c=document.getElementById('cv'+i);if(!c)return;
+    const ctx=c.getContext('2d');const p=c.parentElement;
+    c.width=p.offsetWidth||320;c.height=p.offsetHeight||180;
+    const W=c.width,H=c.height,style=i%4;let t=0;
+    (function draw(){
+      t+=0.01;ctx.clearRect(0,0,W,H);ctx.fillStyle='#050505';ctx.fillRect(0,0,W,H);
       if(style===0){
-        // horizontal scan lines with pulse
-        for(let l=0;l<H;l+=8){
-          const a = 0.03+Math.sin(t+l*0.04+seed)*0.025;
-          x.fillStyle=`rgba(255,255,255,${a})`;
-          x.fillRect(0,l,W*(0.3+Math.sin(t*0.5+l*0.03)*0.3),2);
-        }
-      } else if(style===1){
-        // grid of dots
-        const spacing=24;
-        for(let gx=spacing/2;gx<W;gx+=spacing){
-          for(let gy=spacing/2;gy<H;gy+=spacing){
-            const d=Math.sqrt((gx-W/2)**2+(gy-H/2)**2);
-            const a=0.04+Math.sin(t-d*0.04)*0.04;
-            const r=1+Math.sin(t*0.8+d*0.05)*0.5;
-            x.beginPath();x.arc(gx,gy,r,0,Math.PI*2);
-            x.fillStyle=`rgba(255,255,255,${a})`;x.fill();
-          }
-        }
-      } else {
-        // diagonal streaks
-        for(let s=0;s<12;s++){
-          const sx=(s/12)*W+Math.sin(t*0.4+s)*30;
-          const sy=Math.sin(t*0.3+s*0.8)*H*0.3+H/2;
-          const len=60+Math.sin(t+s)*40;
-          const a=0.04+Math.sin(t+s)*0.03;
-          x.beginPath();
-          x.moveTo(sx,sy); x.lineTo(sx+len,sy+len*0.5);
-          x.strokeStyle=`rgba(255,255,255,${a})`;
-          x.lineWidth=1; x.stroke();
-        }
+        for(let l=0;l<H;l+=10){const a=0.025+Math.sin(t+l*0.04)*0.02;ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fillRect(0,l,W*(0.25+Math.sin(t*0.4+l*0.025)*0.25),1.5);}
+      }else if(style===1){
+        const sp=26;for(let gx=sp/2;gx<W;gx+=sp){for(let gy=sp/2;gy<H;gy+=sp){const d=Math.sqrt((gx-W/2)**2+(gy-H/2)**2);const a=0.03+Math.sin(t-d*0.04)*0.03;const r=0.8+Math.sin(t*0.7+d*0.04)*0.5;ctx.beginPath();ctx.arc(gx,gy,r,0,Math.PI*2);ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fill();}}
+      }else if(style===2){
+        for(let s=0;s<10;s++){const sx=(s/10)*W+Math.sin(t*0.3+s)*25;const sy=Math.sin(t*0.25+s*0.7)*H*0.25+H/2;const len=50+Math.sin(t+s)*35;const a=0.03+Math.sin(t+s)*0.025;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+len,sy+len*0.4);ctx.strokeStyle=`rgba(255,255,255,${a})`;ctx.lineWidth=1;ctx.stroke();}
+        // gold accent line
+        const gx=W/2+Math.sin(t*0.5)*40;ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx+20,H);ctx.strokeStyle=`rgba(232,201,122,${0.04+Math.sin(t)*0.02})`;ctx.lineWidth=1;ctx.stroke();
+      }else{
+        // concentric with gold
+        for(let r=0;r<5;r++){const rad=20+r*22+Math.sin(t+r*0.8)*8;const a=0.04-r*0.005;ctx.beginPath();ctx.arc(W/2,H/2,rad,0,Math.PI*2);ctx.strokeStyle=r===2?`rgba(232,201,122,${a})`:`rgba(255,255,255,${a})`;ctx.lineWidth=1;ctx.stroke();}
       }
-      requestAnimationFrame(drawCard);
-    }
-    drawCard();
+      requestAnimationFrame(draw);
+    })();
   });
 }
 
-/* ═══════════════════════════════════════
-   MODAL
-═══════════════════════════════════════ */
+/* ── MODAL ── */
 function openModal(f){
-  document.getElementById('modal-title').textContent = f.title;
-  let embedHTML;
+  document.getElementById('modal-title').textContent=f.title;
+  let html;
   if(f.youtube){
-    embedHTML = `
-      <div style="position:relative;width:100%;aspect-ratio:16/9;background:#000;margin-top:8px">
-        <iframe
-          src="https://www.youtube.com/embed/${f.youtube}?autoplay=1&rel=0&modestbranding=1"
-          width="100%" height="100%"
-          style="position:absolute;inset:0;border:none"
-          allow="autoplay;encrypted-media;fullscreen"
-          allowfullscreen>
-        </iframe>
-      </div>
-      <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#444;margin-top:16px;text-align:center">${f.meta}</p>
-    `;
-  } else if(f.tiktok){
-    embedHTML = `
-      <div style="display:flex;flex-direction:column;align-items:center;gap:32px;padding:40px 0">
-        <a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}"
-           target="_blank"
-           style="display:block;width:100%;max-width:500px;aspect-ratio:9/16;max-height:340px;background:#080808;border:1px solid #222;text-decoration:none;position:relative;overflow:hidden;cursor:pointer"
-           onmouseover="this.style.borderColor='#555'"
-           onmouseout="this.style.borderColor='#222'">
-          <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,255,255,0.04) 0%,transparent 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px">
-            <div style="font-size:52px;color:rgba(255,255,255,0.15)">▶</div>
-            <p style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:#555;text-transform:uppercase;margin:0">Click to watch</p>
-          </div>
-        </a>
-        <a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}"
-           target="_blank"
-           style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:#000;background:#fff;padding:16px 48px;text-decoration:none;display:inline-block"
-           onmouseover="this.style.background='#ccc'"
-           onmouseout="this.style.background='#fff'">
-          ▶ &nbsp; Watch on TikTok
-        </a>
-        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#444;margin:0">${f.meta}</p>
-      </div>
-    `;
-  } else {
-    embedHTML = `
-      <div style="aspect-ratio:16/9;background:#0a0a0a;display:flex;align-items:center;justify-content:center;border:1px solid #1a1a1a">
-        <span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:#333">COMING SOON</span>
-      </div>
-    `;
+    html=`<div style="position:relative;width:100%;aspect-ratio:16/9;background:#000"><iframe src="https://www.youtube.com/embed/${f.youtube}?autoplay=1&rel=0" width="100%" height="100%" style="position:absolute;inset:0;border:none" allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe></div><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#333;margin-top:14px;text-align:center">${f.meta}</p>`;
+  }else if(f.tiktok){
+    html=`<div style="display:flex;flex-direction:column;align-items:center;gap:28px;padding:36px 0"><a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}" target="_blank" style="display:flex;align-items:center;justify-content:center;width:100%;max-width:460px;aspect-ratio:9/16;max-height:320px;background:#080808;border:1px solid #1a1a1a;text-decoration:none;flex-direction:column;gap:12px" onmouseover="this.style.borderColor='rgba(232,201,122,0.4)'" onmouseout="this.style.borderColor='#1a1a1a'"><div style="font-size:44px;color:rgba(232,201,122,0.3)">▶</div><p style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#444;text-transform:uppercase;margin:0">Click to watch on TikTok</p></a><a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#000;background:#e8c97a;padding:16px 48px;text-decoration:none" onmouseover="this.style.background='#c8a84a'" onmouseout="this.style.background='#e8c97a'">▶ &nbsp; Watch on TikTok</a></div>`;
+  }else{
+    html=`<div style="aspect-ratio:16/9;background:#0a0a0a;display:flex;align-items:center;justify-content:center;border:1px solid #1a1a1a"><span style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:#222">COMING SOON</span></div>`;
   }
-  document.getElementById('modal-body').innerHTML = embedHTML;
+  document.getElementById('modal-body').innerHTML=html;
   document.getElementById('modal').classList.add('open');
 }
-document.getElementById('modal-close').addEventListener('click',()=>{
-  document.getElementById('modal').classList.remove('open');
-});
-document.getElementById('modal').addEventListener('click',e=>{
-  if(e.target===document.getElementById('modal'))
-    document.getElementById('modal').classList.remove('open');
-});
+document.getElementById('modal-close').addEventListener('click',()=>document.getElementById('modal').classList.remove('open'));
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))document.getElementById('modal').classList.remove('open');});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('modal').classList.remove('open');});
 
-/* ═══════════════════════════════════════
-   SCROLL REVEAL
-═══════════════════════════════════════ */
-const observer = new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting) e.target.classList.add('visible');
-  });
-},{threshold:0.1});
+/* ── SCROLL REVEAL ── */
+const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:0.08});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
-
 </script>
 </body>
 </html>
