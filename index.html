@@ -132,6 +132,9 @@ section{position:relative;z-index:var(--z-app);padding:120px 8vw;}
 .card:hover .card-tag{transform:translateY(0);opacity:1;}
 .card:hover .card-play{opacity:1;transform:translate(-50%,-50%) scale(1);}
 .card:hover .card-number{color:var(--dim);}
+/* 3D tilt shimmer — gold light follow */
+.card::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(232,201,122,.22) 0%,rgba(232,201,122,.06) 38%,transparent 68%);opacity:0;transition:opacity .35s ease;pointer-events:none;z-index:2;mix-blend-mode:screen;}
+.card:hover::before{opacity:1;}
 
 /* DIVIDER */
 .divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);position:relative;z-index:var(--z-app);}
@@ -224,6 +227,8 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
   .reveal,.reveal-left,.reveal-right,.reveal-scale{opacity:1;transform:none;}
+  .card::before{display:none!important;}
+  .card{transform:none!important;}
 }
 
 /* RESPONSIVE */
@@ -555,18 +560,20 @@ films.forEach((f,i)=>{
     <div class="card-tag">${f.tag}</div>
     <div class="card-play"></div>`;
 
-  // 3D tilt on mousemove
+  // 3D tilt + gold shimmer on mousemove
   card.addEventListener('mousemove',e=>{
     const r=card.getBoundingClientRect();
-    const x=(e.clientX-r.left)/r.width-.5;
+    const x=(e.clientX-r.left)/r.width-.5;  // -0.5 → 0.5
     const y=(e.clientY-r.top)/r.height-.5;
-    card.style.transform=`perspective(900px) rotateY(${x*14}deg) rotateX(${-y*9}deg) scale3d(1.025,1.025,1.025)`;
+    card.style.setProperty('--mx',`${(x+.5)*100}%`);
+    card.style.setProperty('--my',`${(y+.5)*100}%`);
+    card.style.transform=`perspective(800px) rotateY(${x*18}deg) rotateX(${-y*12}deg) scale3d(1.03,1.03,1.03) translateZ(10px)`;
   });
   card.addEventListener('mouseleave',()=>{
-    card.style.transform='perspective(900px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)';
-    card.style.transition='transform .6s cubic-bezier(.23,1,.32,1),box-shadow .5s cubic-bezier(.23,1,.32,1)';
+    card.style.transform='perspective(800px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1) translateZ(0)';
+    card.style.transition='transform .65s cubic-bezier(.23,1,.32,1),box-shadow .5s cubic-bezier(.23,1,.32,1)';
   });
-  card.addEventListener('mouseenter',()=>{card.style.transition='transform .1s linear,box-shadow .5s';});
+  card.addEventListener('mouseenter',()=>{card.style.transition='transform .12s ease-out,box-shadow .4s';});
   card.addEventListener('click',()=>openModal(f));
   grid.appendChild(card);
 });
