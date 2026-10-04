@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fitzy Clips · It's Showtime 4 U</title>
-<meta name="description" content="Trending. Original. Movie Edits. Clips. Shorts. AI-generated cinema. @itsshowtime4u — 9.6M likes, 100K+ followers.">
+<meta name="description" content="Trending. Original. Movie Edits. Clips. Shorts. AI-generated cinema. @itsshowtime4u — movie edits and AI video experiments.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -19,7 +19,7 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{background:#000;color:var(--white);font-family:'Cormorant Garamond',serif;overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased;}
+body{background:#000;color:var(--white);font-family:'Cormorant Garamond',serif;overflow-x:hidden;cursor:auto;-webkit-font-smoothing:antialiased;}
 
 /* SCROLL PROGRESS */
 #scroll-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2));z-index:calc(var(--z-nav)+2);width:0%;pointer-events:none;}
@@ -84,11 +84,11 @@ nav.scrolled{background:rgba(0,0,0,.6);backdrop-filter:blur(24px) saturate(180%)
 .stat-num span{color:var(--accent);font-size:28px;}
 .stat-label{font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-top:4px;display:block;}
 .hero-cta{margin-top:56px;display:flex;gap:16px;align-items:center;opacity:0;animation:fadeUp 1s 1s forwards;}
-.btn-primary{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#000;background:var(--accent);border:none;padding:18px 44px;cursor:none;text-decoration:none;display:inline-block;transition:background .2s,box-shadow .2s;position:relative;overflow:hidden;}
+.btn-primary{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#000;background:var(--accent);border:none;padding:18px 44px;cursor:auto;text-decoration:none;display:inline-block;transition:background .2s,box-shadow .2s;position:relative;overflow:hidden;}
 .btn-primary::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.15);transform:translateX(-100%);transition:transform .3s;}
 .btn-primary:hover::after{transform:translateX(0);}
 .btn-primary:hover{background:var(--accent2);box-shadow:0 0 32px rgba(232,201,122,.35);}
-.btn-secondary{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.04);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);padding:18px 44px;cursor:none;text-decoration:none;display:inline-block;transition:border-color .2s,background .2s,box-shadow .2s;}
+.btn-secondary{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.04);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);padding:18px 44px;cursor:auto;text-decoration:none;display:inline-block;transition:border-color .2s,background .2s,box-shadow .2s;}
 .btn-secondary:hover{border-color:var(--accent);background:rgba(232,201,122,.06);box-shadow:0 0 24px rgba(232,201,122,.1);}
 .hero-scroll{position:absolute;bottom:40px;right:8vw;display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;animation:fadeIn 1s 1.6s forwards;}
 .scroll-line{width:1px;height:64px;background:linear-gradient(to bottom,transparent,var(--accent));animation:scrollPulse 2.5s ease-in-out infinite;}
@@ -111,7 +111,7 @@ section{position:relative;z-index:var(--z-app);padding:120px 8vw;}
 /* FILMS */
 #films{background:transparent;}
 .films-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;}
-.card{position:relative;aspect-ratio:16/9;overflow:hidden;cursor:none;background:#080808;transition:box-shadow .5s cubic-bezier(.23,1,.32,1);will-change:transform;}
+.card{position:relative;aspect-ratio:16/9;overflow:hidden;cursor:auto;background:#080808;transition:box-shadow .5s cubic-bezier(.23,1,.32,1);will-change:transform;}
 .card:hover{z-index:2;box-shadow:0 24px 64px rgba(0,0,0,.9),0 0 40px rgba(232,201,122,.08);}
 .card-bg{position:absolute;inset:0;background:#070707;background-size:cover;background-position:center;}
 .card-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(232,201,122,.05) 0%,transparent 50%);opacity:0;transition:opacity .5s;}
@@ -243,6 +243,11 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
   .hero-stats{gap:10px;}
   .collab-grid{grid-template-columns:1fr;}
 }
+/* Readable controls and reliable interaction */
+#cursor{display:none}a,button,.card{cursor:pointer}
+.btn-primary,.btn-secondary,.card-meta,.card-tag,.section-label,.tiktok-sub,.collab-card-text,.footer-copy,.modal-close{font-size:14px;letter-spacing:.06em}
+.card:focus-visible,a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){canvas,#bg-canvas{display:none!important}.ticker{animation:none!important}}
 </style>
 </head>
 <body>
@@ -260,7 +265,7 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
     <li><a href="#films">Films</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="#collab">Collab</a></li>
-    <li><a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="nav-cta">TikTok</a></li>
+    <li><a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" rel="noopener noreferrer" class="nav-cta">TikTok</a></li>
   </ul>
 </nav>
 
@@ -269,13 +274,13 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
   <h1 class="hero-title" data-parallax=".12">IT'S<br><span class="dim">SHOW</span><br><span class="gold">TIME</span></h1>
   <p class="hero-sub" data-parallax=".08">Trending. Original. Movie Edits. Clips. Shorts.<br>AI-generated cinema for the next generation.</p>
   <div class="hero-stats" data-parallax=".06">
-    <div class="stat-item"><span class="stat-num">9.6<span>M</span></span><span class="stat-label">Total Likes</span></div>
-    <div class="stat-item"><span class="stat-num">100<span>K+</span></span><span class="stat-label">Followers</span></div>
+    <div class="stat-item"><span class="stat-num">FILM</span><span class="stat-label">Edits</span></div>
+    <div class="stat-item"><span class="stat-num">SHORT</span><span class="stat-label">Form</span></div>
     <div class="stat-item"><span class="stat-num">AI</span><span class="stat-label">Generated</span></div>
   </div>
   <div class="hero-cta" data-parallax=".04">
     <a href="#films" class="btn-primary">Watch Now</a>
-    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-secondary">Follow on TikTok</a>
+    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" rel="noopener noreferrer" class="btn-secondary">Follow on TikTok</a>
   </div>
   <div class="hero-scroll" style="position:absolute;bottom:40px;right:8vw;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;opacity:0;animation:fadeIn 1s 1.6s forwards;"><div class="scroll-line"></div><span class="scroll-label">Scroll</span></div>
 </section>
@@ -291,8 +296,8 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
 <div class="divider"></div>
 
 <div id="stats-bar">
-  <div class="stats-bar-item reveal"><span class="stats-bar-num">9.6M</span><span class="stats-bar-label">TikTok Likes</span></div>
-  <div class="stats-bar-item reveal" style="transition-delay:.1s"><span class="stats-bar-num">100K+</span><span class="stats-bar-label">Followers</span></div>
+  <div class="stats-bar-item reveal"><span class="stats-bar-num">HORROR</span><span class="stats-bar-label">Movie edits</span></div>
+  <div class="stats-bar-item reveal" style="transition-delay:.1s"><span class="stats-bar-num">SCI-FI</span><span class="stats-bar-label">Worlds & stories</span></div>
   <div class="stats-bar-item reveal" style="transition-delay:.2s"><span class="stats-bar-num">AI</span><span class="stats-bar-label">Native Content</span></div>
   <div class="stats-bar-item reveal" style="transition-delay:.3s"><span class="stats-bar-num">2024</span><span class="stats-bar-label">Est.</span></div>
 </div>
@@ -302,9 +307,9 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
     <p class="section-label">About</p>
     <h2 class="section-title">FITZY<br>CLIPS</h2>
     <p><strong>Trending. Original. Cinematic.</strong> Fitzy Clips is a creative channel pushing the boundaries of what's possible with AI video generation and cinematic editing.</p>
-    <p>From short film edits to full AI-generated movie sequences, every frame is crafted with intention. <strong>9.6 million likes</strong> and counting — independent cinema for the streaming age.</p>
+    <p>From short film edits to full AI-generated movie sequences, every frame is crafted with intention. Explore the selected work below. Movie footage and music remain the property of their respective rights holders.</p>
     <div class="about-links">
-      <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-primary">TikTok</a>
+      <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" rel="noopener noreferrer" class="btn-primary">TikTok</a>
     </div>
   </div>
   <div class="about-visual reveal-right"><canvas id="about-canvas"></canvas></div>
@@ -314,8 +319,8 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
 
 <section id="tiktok-section" class="reveal-scale">
   <p class="tiktok-sub">Find us on TikTok</p>
-  <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="tiktok-handle">@itsshowtime4u</a>
-  <p class="tiktok-sub" style="margin-top:16px">100.4K Followers · 9.6M Likes</p>
+  <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" rel="noopener noreferrer" class="tiktok-handle">@itsshowtime4u</a>
+  <p class="tiktok-sub" style="margin-top:16px">See the channel for current audience figures and new uploads.</p>
 </section>
 
 <div class="divider"></div>
@@ -324,14 +329,14 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
   <div class="collab-inner">
     <p class="section-label reveal">Work With Us</p>
     <h2 class="section-title reveal">COLLAB &amp;<br>CONTACT</h2>
-    <p class="collab-sub reveal">Brand partnerships, sync licensing, sponsored edits, AI content production. Worldwide · Remote.</p>
+    <p class="collab-sub reveal">Creative collaboration and AI video experiments. Commercial projects require clearance for all footage and music.</p>
     <div class="collab-grid">
       <div class="collab-card reveal" style="transition-delay:0s">
         <div class="collab-card-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         </div>
         <div class="collab-card-title">Sponsored Edits</div>
-        <div class="collab-card-text">Product placement and branded short-form content for TikTok and YouTube. Reach 100K+ engaged followers.</div>
+        <div class="collab-card-text">Product placement and branded short-form content for TikTok and YouTube. Audience information is available on the linked channel.</div>
       </div>
       <div class="collab-card reveal" style="transition-delay:.12s">
         <div class="collab-card-icon">
@@ -344,13 +349,13 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
         <div class="collab-card-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/></svg>
         </div>
-        <div class="collab-card-title">Sync Licensing</div>
-        <div class="collab-card-text">License original edit formats and visual styles for commercial campaigns and productions.</div>
+        <div class="collab-card-title">Creative Concepts</div>
+        <div class="collab-card-text">Discuss editing concepts and original production. Third-party film footage and music are not offered for licensing.</div>
       </div>
     </div>
     <div class="collab-cta reveal">
       <button class="btn-primary" id="contact-btn">Get In Touch</button>
-      <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" class="btn-secondary">@itsshowtime4u</a>
+      <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" rel="noopener noreferrer" class="btn-secondary">@itsshowtime4u</a>
     </div>
   </div>
 </section>
@@ -359,9 +364,9 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
   <div class="footer-logo"><div class="footer-logo-dot"></div>FITZY CLIPS</div>
   <div class="footer-links">
     <a href="#films">Films</a><a href="#about">About</a><a href="#collab">Collab</a>
-    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank">TikTok</a>
+    <a href="https://www.tiktok.com/@itsshowtime4u" target="_blank" rel="noopener noreferrer">TikTok</a>
   </div>
-  <div class="footer-copy">© 2025 · @itsshowtime4u</div>
+  <div class="footer-copy">© 2026 · @itsshowtime4u</div>
 </footer>
 
 </div>
@@ -379,9 +384,9 @@ footer{position:relative;z-index:var(--z-app);padding:48px 8vw;border-top:1px so
     <button class="modal-close" id="contact-modal-close">Close</button>
     <div class="modal-title">GET IN TOUCH</div>
     <form class="contact-form" action="https://formspree.io/f/xgonlolj" method="POST">
-      <input type="text" name="name" placeholder="Name" required>
-      <input type="email" name="email" placeholder="Email" required>
-      <textarea name="message" placeholder="Message" required></textarea>
+      <input aria-label="Name" type="text" name="name" placeholder="Name" required>
+      <input aria-label="Email" type="email" name="email" placeholder="Email" required>
+      <textarea aria-label="Message" name="message" placeholder="Message" required></textarea>
       <button type="submit" class="btn-primary">Send Message</button>
     </form>
   </div>
@@ -518,7 +523,7 @@ window.addEventListener('scroll',()=>{
 })();
 
 // ── TICKER ──
-const tickerItems=['Fitzy Clips','AI Movies','Original Edits','Trending','@itsshowtime4u','100K Followers','9.6M Likes','Cinematic Edits','AI Generated','Short Films','Horror Edits','Sci-Fi'];
+const tickerItems=['Fitzy Clips','AI Movies','Original Edits','Trending','@itsshowtime4u','Cinematic Edits','AI Generated','Short Films','Horror Edits','Sci-Fi'];
 const ticker=document.getElementById('ticker');
 [...tickerItems,...tickerItems,...tickerItems,...tickerItems].forEach(txt=>{
   const el=document.createElement('span');el.className='ticker-item';
@@ -527,31 +532,33 @@ const ticker=document.getElementById('ticker');
 
 // ── FILMS ──
 const films=[
-  {n:'01',title:'THE CREEP TAPES 🪓',meta:'#movie #creep #edit #thesoundofyourfear',tag:'EDIT',tiktok:'7505730746271730962',bg:'https://source.unsplash.com/600x338/?horror,creep,cinema'},
-  {n:'02',title:"WHO'S THE DUMMY? 💀",meta:'#movie #horror #classic #deadsilence #edit',tag:'EDIT',tiktok:'7450449923352448263',bg:'https://source.unsplash.com/600x338/?horror,puppet,dummy'},
-  {n:'03',title:"DRACULA'S LOVE STORY",meta:'#goodmovie #draculaalovetale #horrorromance',tag:'EDIT',tiktok:'7547393604906405138',bg:'https://source.unsplash.com/600x338/?vampire,gothic,dark'},
-  {n:'04',title:"WOULD YOU OPEN THE DOOR? ODDITY",meta:'#horror #oddity #edit',tag:'EDIT',tiktok:'7405280302551010578',bg:'https://source.unsplash.com/600x338/?mystery,door,horror'},
-  {n:'05',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7603105474698923282',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=5'},
-  {n:'06',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7602951290955566344',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=6'},
-  {n:'07',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7601129722612927752',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=7'},
-  {n:'08',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7600513692022639890',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=8'},
-  {n:'09',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7598581351628950792',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=9'},
-  {n:'10',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7597881603376958728',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=10'},
-  {n:'11',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7595381951981456658',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=11'},
-  {n:'12',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7595327437156650258',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=12'},
-  {n:'13',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7593448218730450194',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=13'},
-  {n:'14',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7592647930100714759',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=14'},
-  {n:'15',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7592607040086740232',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=15'},
-  {n:'16',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7588192117248380168',bg:'https://source.unsplash.com/600x338/?apocalypse,wasteland,ruins&sig=16'},
+  {n:'01',title:'THE CREEP TAPES 🪓',meta:'#movie #creep #edit #thesoundofyourfear',tag:'EDIT',tiktok:'7505730746271730962',bg:''},
+  {n:'02',title:"WHO'S THE DUMMY? 💀",meta:'#movie #horror #classic #deadsilence #edit',tag:'EDIT',tiktok:'7450449923352448263',bg:''},
+  {n:'03',title:"DRACULA'S LOVE STORY",meta:'#goodmovie #draculaalovetale #horrorromance',tag:'EDIT',tiktok:'7547393604906405138',bg:''},
+  {n:'04',title:"WOULD YOU OPEN THE DOOR? ODDITY",meta:'#horror #oddity #edit',tag:'EDIT',tiktok:'7405280302551010578',bg:''},
+  {n:'05',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7603105474698923282',bg:''},
+  {n:'06',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7602951290955566344',bg:''},
+  {n:'07',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7601129722612927752',bg:''},
+  {n:'08',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7600513692022639890',bg:''},
+  {n:'09',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7598581351628950792',bg:''},
+  {n:'10',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7597881603376958728',bg:''},
+  {n:'11',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7595381951981456658',bg:''},
+  {n:'12',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7595327437156650258',bg:''},
+  {n:'13',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7593448218730450194',bg:''},
+  {n:'14',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7592647930100714759',bg:''},
+  {n:'15',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7592607040086740232',bg:''},
+  {n:'16',title:'FALLOUT',meta:'#fallout #edit',tag:'EDIT',tiktok:'7588192117248380168',bg:''},
 ];
 
 const grid=document.getElementById('films-grid');
 films.forEach((f,i)=>{
   const card=document.createElement('div');
   card.className='card reveal';
+  card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label','Watch '+f.title+' · clip '+f.n);
+  card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openModal(f)}});
   card.style.transitionDelay=(i%3)*.1+'s';
   card.innerHTML=`
-    <div class="card-bg" style="background-image:url('${f.bg}');background-size:cover;background-position:center;"></div>
+    <div class="card-bg" style="background:linear-gradient(135deg,#233543,#101318 55%,#503b1d);"></div>
     <div class="card-inner">
       <div class="card-number">${f.n}</div>
       <div class="card-title">${f.title}</div>
@@ -585,11 +592,11 @@ function openModal(f){
   let html;
   if(f.tiktok){
     html=`<div style="display:flex;flex-direction:column;align-items:center;gap:28px;padding:36px 0">
-      <a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}" target="_blank" style="display:flex;align-items:center;justify-content:center;width:100%;max-width:460px;aspect-ratio:9/16;max-height:320px;background:rgba(255,255,255,.03);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);text-decoration:none;flex-direction:column;gap:12px;transition:border-color .3s" onmouseover="this.style.borderColor='rgba(232,201,122,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
+      <a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;width:100%;max-width:460px;aspect-ratio:9/16;max-height:320px;background:rgba(255,255,255,.03);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);text-decoration:none;flex-direction:column;gap:12px;transition:border-color .3s" onmouseover="this.style.borderColor='rgba(232,201,122,.4)'" onmouseout="this.style.borderColor='rgba(255,255,255,.08)'">
         <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(232,201,122,0.4)" stroke-width="1.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
         <p style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:#444;text-transform:uppercase;margin:0">Click to watch on TikTok</p>
       </a>
-      <a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#000;background:#e8c97a;padding:16px 48px;text-decoration:none;transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#c8a84a';this.style.boxShadow='0 0 24px rgba(232,201,122,.35)'" onmouseout="this.style.background='#e8c97a';this.style.boxShadow='none'">Watch on TikTok</a>
+      <a href="https://www.tiktok.com/@itsshowtime4u/video/${f.tiktok}" target="_blank" rel="noopener noreferrer" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#000;background:#e8c97a;padding:16px 48px;text-decoration:none;transition:background .2s,box-shadow .2s" onmouseover="this.style.background='#c8a84a';this.style.boxShadow='0 0 24px rgba(232,201,122,.35)'" onmouseout="this.style.background='#e8c97a';this.style.boxShadow='none'">Watch on TikTok</a>
     </div>`;
   } else {
     html=`<div style="aspect-ratio:16/9;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.06)"><span style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:3px;color:#222">COMING SOON</span></div>`;
